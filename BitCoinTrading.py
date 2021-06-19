@@ -6,7 +6,6 @@ from slacker import Slacker
 import requests
 import os, sys, ctypes
 from numpy import load
-import win32com.client
 import time, calendar
 import requests
 
@@ -17,11 +16,11 @@ def dbgout(token, channel, text):
     )
     print(str(text))
  
-myToken = ""
+myToken = "xoxb-1647169481493-2175166787239-Sa2yJhcjE4nWIIqLlHL8KzXI"
  
 
-access = ""
-secret = ""
+access = "5fDHPiW76V7EXo8hlH8ughdJQ8JTt35gYw9Z40vB"
+secret = "aSxf6DpfxW9zCvhvBcmx6G8xu14lza8T4Bbx1SBi"
 
 def get_target_price(ticker):
     """변동성 돌파 전략으로 매수 목표가 조회"""
@@ -55,8 +54,10 @@ def get_current_price(ticker):
 
 if __name__ == '__main__':
     current_prices = []
+    price_Average = []
     buy_price = 0
     trading = False
+    sell_trading = False
     # 로그인
     upbit = pyupbit.Upbit(access, secret)
 
@@ -78,30 +79,42 @@ if __name__ == '__main__':
             end_time = start_time + datetime.timedelta(days=1)
 
             current_prices.append(get_current_price("KRW-BTC"))
+            price_Average.append(get_current_price("KRW-BTC"))
             if len(current_prices) > 5:
                 current_prices = current_prices[1:]
+            if len(price_Average) > 24:
+                price_Average = price_Average[1:]
             hour = now.hour
             minute = now.minute
             second = now.second
-            dbgout(myToken,"#bitcoin-","[" + str(hour) + " : " + str(minute) + " : " + str(second) + "]" + str(current_prices))
+            dbgout(myToken,"#bitcoin-","[" + str(hour) + " : " + str(minute) + " : " + str(second) + "]")
             try:
-                if buy_price * 1.0015 < current_prices[-1] and trading == True:
+                if buy_price * 1.0015 < current_prices[-1] and sell_trading == True:
                     btc = get_balance("BTC")
                     if btc > 0.00008:
                         upbit.sell_market_order("KRW-BTC", btc)
                         dbgout(myToken,"#bitcoin-","sell")
                         krw = get_balance("KRW")
                         dbgout(myToken,"#bitcoin-","현재 잔고 : " + str(upbit.get_balance("KRW")))
+                        sell_trading =False
                         trading = False
 
-                if current_prices[-5] >= current_prices[-4] >=  current_prices[-3] >= current_prices[-2] < current_prices[-1] and trading == False:
-                    krw = get_balance("KRW")
-                    if krw > 5000:
-                        upbit.buy_market_order("KRW-BTC", krw*0.9995)
-                        buy_price = get_current_price("KRW-BTC")
-                        dbgout(myToken,"#bitcoin-","autotrade start")
-                        dbgout(myToken,"#bitcoin-","buy")
-                        trading =True
+                if current_prices[-5] > current_prices[-4] >  current_prices[-3] > current_prices[-2] and trading == False and sell_trading == False:
+                    trading =True
+                
+                if trading == True and current_prices[-3] > current_prices[-2] < current_prices[-1]:
+                    if min(price_Average) +  (max(price_Average) - min(price_Average) * 0.5) < current_prices[-1]:
+                        pass
+                    else:
+                        krw = get_balance("KRW")
+                        if krw > 5000:
+                            upbit.buy_market_order("KRW-BTC", krw*0.9995)
+                            buy_price = get_current_price("KRW-BTC")
+                            sell_trading = True
+                            trading = False
+                            dbgout(myToken,"#bitcoin-","buy")
+
+
                 now = datetime.datetime.now()
                 if 0 <= now.second <57:
                     time.sleep(240+ (57-now.second))
@@ -113,7 +126,7 @@ if __name__ == '__main__':
                     time.sleep(240 + (57 - now.second))
                 else:
                     time.sleep(240 + ((60 - now.second) + 57))
-                continue
+                pass
 
         except Exception as e:
             dbgout(myToken,"#bitcoin-",str(e))
