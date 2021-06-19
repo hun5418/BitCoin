@@ -16,11 +16,11 @@ def dbgout(token, channel, text):
     )
     print(str(text))
  
-myToken = "xoxb-1647169481493-2175166787239-Sa2yJhcjE4nWIIqLlHL8KzXI"
+myToken =""
  
 
-access = "5fDHPiW76V7EXo8hlH8ughdJQ8JTt35gYw9Z40vB"
-secret = "aSxf6DpfxW9zCvhvBcmx6G8xu14lza8T4Bbx1SBi"
+access = ""
+secret = ""
 
 def get_target_price(ticker):
     """변동성 돌파 전략으로 매수 목표가 조회"""
