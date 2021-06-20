@@ -135,8 +135,7 @@ if __name__ == '__main__':
                             sell_trading = True
                             trading = False
                             dbgout(myToken,"#bitcoin-","buy")
-
-
+                        
                 now = datetime.datetime.now()
                 if 0 <= now.second <57:
                     time.sleep(57-now.second)
