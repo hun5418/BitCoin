@@ -16,11 +16,11 @@ def dbgout(token, channel, text):
     )
     print(str(text))
  
-myToken ="xoxb-1647169481493-2175166787239-xDBUB4PCNkuJP1depLlXdABX"
+myToken =""
  
 
-access = "5fDHPiW76V7EXo8hlH8ughdJQ8JTt35gYw9Z40vB"
-secret = "aSxf6DpfxW9zCvhvBcmx6G8xu14lza8T4Bbx1SBi"
+access = ""
+secret = ""
 
 def get_target_price(ticker):
     """변동성 돌파 전략으로 매수 목표가 조회"""
@@ -123,7 +123,7 @@ if __name__ == '__main__':
                 if (current_prices[-5] > current_prices[-4] >  current_prices[-3] > current_prices[-2] or current_prices[-2] * 1.0025 <= current_prices[-3] ) and trading == False and sell_trading == False:
                     trading =True
                 
-                if trading == True and current_prices[-3] > current_prices[-2] < current_prices[-1]:
+                if trading == True and current_prices[-3] > current_prices[-2] < current_prices[-1] <current_prices[-2] * 1.003:
                     if min(price_Average) +  (max(price_Average) - min(price_Average) * 0.5) < current_prices[-1]:
                         now = datetime.datetime.now()
                         if 0 <= now.second <57:
