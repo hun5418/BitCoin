@@ -55,6 +55,7 @@ def get_current_price(ticker):
 if __name__ == '__main__':
     current_prices = []
     price_Average = []
+    sell_price = []
     buy_price = 0
     trading = False
     sell_trading = False
@@ -85,9 +86,13 @@ if __name__ == '__main__':
                     trading = True
                 else:
                     trading = False
-
-            current_prices.append(get_current_price("KRW-BTC"))
-            price_Average.append(get_current_price("KRW-BTC"))
+            if sell_trading ==False:
+                current_prices.append(get_current_price("KRW-BTC"))
+                price_Average.append(get_current_price("KRW-BTC"))
+            else:
+                if len(sell_price) % 60 == 0:
+                    current_prices.append(get_current_price("KRW-BTC"))
+                    price_Average.append(get_current_price("KRW-BTC"))
             if len(current_prices) > 5:
                 current_prices = current_prices[1:]
             if len(price_Average) > 60:
@@ -97,13 +102,14 @@ if __name__ == '__main__':
             second = now.second
             dbgout(myToken,"#bitcoin-","[" + str(hour) + " : " + str(minute) + " : " + str(second) + "]")
             try:
-                if (buy_price * 1.0015 < current_prices[-1] or buy_price * 0.997 > current_prices[-1]) and sell_trading == True:
+                if (buy_price * 1.0015 < sell_price[-1] or buy_price * 0.997 > sell_price[-1]) and sell_trading == True:
                     btc = get_balance("BTC")
                     if btc > 0.00008:
                         upbit.sell_market_order("KRW-BTC", btc)
                         dbgout(myToken,"#bitcoin-","sell")
                         krw = get_balance("KRW")
                         dbgout(myToken,"#bitcoin-","현재 잔고 : " + str(upbit.get_balance("KRW")))
+                        sell_price.clear()
                         sell_trading =False
                         
 
@@ -135,7 +141,10 @@ if __name__ == '__main__':
                             sell_trading = True
                             trading = False
                             dbgout(myToken,"#bitcoin-","buy")
-                        
+                if sell_trading == True :
+                    sell_price.append(get_current_price("KRW-BTC"))
+                    time.sleep(1)
+                    continue
                 now = datetime.datetime.now()
                 if 0 <= now.second <57:
                     time.sleep(57-now.second)
