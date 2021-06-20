@@ -66,8 +66,6 @@ if __name__ == '__main__':
 
     now = datetime.datetime.now()
     today_high, today_low = get_target_price("KRW-BTC")
-    minute = 4 - (now.minute % 5)
-    time.sleep(60 * minute)
     if now.second < 60:
         time.sleep(60 - now.second)
     
@@ -82,14 +80,14 @@ if __name__ == '__main__':
             price_Average.append(get_current_price("KRW-BTC"))
             if len(current_prices) > 5:
                 current_prices = current_prices[1:]
-            if len(price_Average) > 24:
+            if len(price_Average) > 120:
                 price_Average = price_Average[1:]
             hour = now.hour
             minute = now.minute
             second = now.second
             dbgout(myToken,"#bitcoin-","[" + str(hour) + " : " + str(minute) + " : " + str(second) + "]")
             try:
-                if buy_price * 1.0015 < current_prices[-1] and sell_trading == True:
+                if (buy_price * 1.0015 < current_prices[-1] or buy_price * 0.99 > current_prices[-1]) and sell_trading == True:
                     btc = get_balance("BTC")
                     if btc > 0.00008:
                         upbit.sell_market_order("KRW-BTC", btc)
@@ -117,15 +115,15 @@ if __name__ == '__main__':
 
                 now = datetime.datetime.now()
                 if 0 <= now.second <57:
-                    time.sleep(240+ (57-now.second))
+                    time.sleep(57-now.second)
                 else:
-                    time.sleep(240 + ((60-now.second) + 57))
+                    time.sleep((60-now.second) + 57)
             except:
                 now = datetime.datetime.now()
                 if 0 <= now.second <57:
-                    time.sleep(240 + (57 - now.second))
+                    time.sleep(57 - now.second)
                 else:
-                    time.sleep(240 + ((60 - now.second) + 57))
+                    time.sleep((60 - now.second) + 57)
                 pass
 
         except Exception as e:
