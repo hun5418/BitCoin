@@ -8,6 +8,16 @@ import os, sys, ctypes
 from numpy import load
 import time, calendar
 import requests
+from re import DEBUG
+import time
+import pyupbit
+import datetime
+from slacker import Slacker
+import requests
+import os, sys, ctypes
+from numpy import load
+import time, calendar
+import requests
 
 def dbgout(token, channel, text):
     response = requests.post("https://slack.com/api/chat.postMessage",
@@ -87,9 +97,13 @@ if __name__ == '__main__':
                     trading = True
                 else:
                     trading = False
-
-            current_prices.append(get_current_price("KRW-BTC"))
-            price_Average.append(get_current_price("KRW-BTC"))
+            if sell_trading ==False:
+                current_prices.append(get_current_price("KRW-BTC"))
+                price_Average.append(get_current_price("KRW-BTC"))
+            else:
+                if sell_price % 5 ==0:
+                    current_prices.append(get_current_price("KRW-BTC"))
+                    price_Average.append(get_current_price("KRW-BTC"))
 
 
             if len(current_prices) > 5:
@@ -111,9 +125,16 @@ if __name__ == '__main__':
                             krw = get_balance("KRW")
                             dbgout(myToken,"#bitcoin-","현재 잔고 : " + str(upbit.get_balance("KRW")))
                             sell_price.clear()
-                            now = datetime.datetime.now()
                             sell_trading =False
+                            now = datetime.datetime.now()
+                            time.sleep(60 * (4 - (now.minute % 5)))
+                            if 0 <= now.second <57:
+                                time.sleep((57-now.second))
+                            else:
+                                time.sleep(((60-now.second) + 57))
                             continue
+                            
+                    
                         
 
                 if (current_prices[-4] >  current_prices[-3] > current_prices[-2] or current_prices[-2] * 1.0025 <= current_prices[-3] ) and trading == False and sell_trading == False:
@@ -138,7 +159,15 @@ if __name__ == '__main__':
                             dbgout(myToken,"#bitcoin-","buy")
 
 
+
                 now = datetime.datetime.now()
+                if sell_trading == True:
+                    if 0 <= now.second <57:
+                        time.sleep((57-now.second))
+                    else:
+                        time.sleep(((60-now.second) + 57))
+                    continue
+
                 if 0 <= now.second <57:
                     time.sleep(240+(57-now.second))
                 else:
